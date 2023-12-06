@@ -1,0 +1,57 @@
+### 2.9
+
+1.  Write the model matrix $X$ for each design. $$
+      A = \begin{bmatrix} 
+      1 & 1 & 1 & 1 & 1 \\
+      1 & 1 & -1 & -1 & 0
+      \end{bmatrix}^T,  \\
+      B = \begin{bmatrix} 
+      1 & 1 & 1 & 1 & 1 \\
+      1 & 1 & 1 & -1 & -1
+      \end{bmatrix}^T, \\
+      C = \begin{bmatrix} 
+      1 & 1 & 1 & 1 & 1 \\
+      1 & 0.5 & 0 & -0.5 & -1
+      \end{bmatrix}^T \\
+    $$
+
+2.  Use the formula $\text{var}(\hat{\mu}) = \mathbf{x}_g (X^TX) \mathbf{x}^T_g$ with $\mathbf{x}_g = \begin{bmatrix} 1 & x \end{bmatrix}$
+
+```{r}
+x <- seq(-1, 1, length=100)
+xA <- c(1, 1, -1, -1, 0)
+xB <- c(1, 1, 1, 1, -1)
+xC <- c(1, 0.5, 0, -0.5, -1)
+varA <- function(x){0.25 + x^2/5}
+varB <- function(x){(5 - 6*x + 5*x^2)/16}
+varC <- function(x){(1+2*x^2)/5}
+vA <- varA(x); vB <- varB(x); vC <- varC(x)
+plot( range(c(vA, vB, vC)) ~ range(x), type="n", ylim=c(0, 1.2),
+ylab="Var. of predictions", xlab="x values", las=1)
+lines(varA(x) ~ x, lty=1, lwd=2)
+lines(varB(x) ~ x, lty=2, lwd=2)
+lines(varC(x) ~ x, lty=3, lwd=2)
+legend("top", lwd=2, lty=1:3, legend=c("Design A", "Design B", "Design C"))
+```
+
+As would be expected from the location of the x values:
+
+-   A produces the most uniform small prediction errors;
+
+-   B produces smaller prediction errors for larger x values;
+
+-   C produces smaller prediction errors in the middle of the range of x values.
+
+### 2.10 
+
+1.  $f(x) = f(\bar{x}) + f'(\bar{x}) (x - \bar{x}) + \frac12 f''(\bar{x}) (x - \bar{x})^2 + ...$
+2.   $f(x)$ is linear in $x$, if $x − \bar{x}$ is small.
+3.  Any function can be considered locally approximately linear.
+
+### 2.11
+
+1.  $\log y = \log \mu + \frac{1}{\mu} (y - \mu) - \frac{1}{2\mu^2} (y - \mu) + ...$
+2.  If $y \approx \mu$ then $\log y \approx \log \mu$
+3.  Self-prove
+
+### 2.12
