@@ -42,10 +42,10 @@ As would be expected from the location of the x values:
 
 -   C produces smaller prediction errors in the middle of the range of x values.
 
-### 2.10 
+### 2.10
 
 1.  $f(x) = f(\bar{x}) + f'(\bar{x}) (x - \bar{x}) + \frac12 f''(\bar{x}) (x - \bar{x})^2 + ...$
-2.   $f(x)$ is linear in $x$, if $x − \bar{x}$ is small.
+2.  $f(x)$ is linear in $x$, if $x − \bar{x}$ is small.
 3.  Any function can be considered locally approximately linear.
 
 ### 2.11
@@ -55,3 +55,141 @@ As would be expected from the location of the x values:
 3.  Self-prove
 
 ### 2.12
+
+```{r}
+# Set a seed for reproducibility
+set.seed(123)
+
+# Number of iterations
+num_iterations <- 1000
+
+# Vector to store P-values
+p_values <- numeric(num_iterations)
+
+# Perform the iterations
+for (i in 1:num_iterations) {
+  # Generate random vectors
+  y <- rnorm(30)
+  x <- rnorm(30)
+
+
+  # Create a data frame
+  data <- data.frame(y = y, x = x)
+
+  # Perform linear regression
+  model <- lm(y ~ x, data = data)
+
+  # Extract the P-value for the coefficient of x
+  p_values[i] <- summary(model)$coefficients["x", "Pr(>|t|)"]
+}
+
+# Calculate proportions
+prop_less_than_5_percent <- mean(p_values < 0.05)
+prop_less_than_10_percent <- mean(p_values < 0.1)
+
+# Print results
+cat("Proportion of P-values less than 5%:", prop_less_than_5_percent, "\n")
+cat("Proportion of P-values less than 10%:", prop_less_than_10_percent, "\n")
+```
+
+### 2.13
+
+```{r}
+# 1. Determine the degrees of freedom omitted from Table 2.7.
+cue.df = 3
+sex.df = 1
+age.df = 3
+residual.df = 60
+
+# 2. Determine how many observations were used in the analysis.
+num_samples = residual.df + 4 # p' including constant, cue, sex, age
+cat("Number samples: ", num_samples, "\n")
+
+# 3. Find an unbiased estimate of sigma^2
+cue.ss = 117793
+sex.ss = 2659
+age.ss = 22850
+RSS = 177639
+
+s2 = RSS / residual.df
+cat("An unbiased estimate of sigma^2: ", s2, "\n")
+
+# 4. Determine which explanatory variables are statistically significant for predicting response time, using sequential F-tests
+cue.mse = cue.ss / cue.df
+cue.ftest = cue.mse / s2
+
+sex.mse = sex.ss / sex.df
+sex.ftest = sex.mse / s2
+
+age.mse = age.ss / age.df
+age.ftest = age.mse / s2
+
+cat("F-test: \n")
+cue.ftest; sex.ftest; age.ftest
+```
+
+```{r}
+# 6. AIC = nlog(RSS/n) + 2p', BIC = nlog(RSS/n) + p'log(n)
+
+AIC = function(RSS, n, p){n*log(RSS/n) + 2*p}
+BIC = function(RSS, n, p){n*log(RSS/n) + p*log(n)}
+
+AIC(cue.ss, num_samples, cue.df + 1); AIC(sex.ss, num_samples, sex.df + 1); AIC(age.ss, num_samples, age.df + 1)
+```
+
+```{r}
+# 7
+BIC(cue.ss, num_samples, cue.df + 1); BIC(sex.ss, num_samples, sex.df + 1); BIC(age.ss, num_samples, age.df + 1)
+```
+
+```{r}
+# 8
+# R2 = function()
+```
+
+### 2.14
+
+### 2.15
+
+```{r}
+library(GLMsData); data(flowers)
+flowers
+```
+
+```{r}
+wts = rep(10, length(flowers$Light) )
+# 1
+plot(Flowers ~ Light, data=flowers, pch=ifelse(Timing=="PFI", 1, 19))
+legend("topright", pch=c(1, 19), legend=c("PFI","Before PFI"))
+```
+
+```{r}
+# 2. The relationship between the number of flowers per plant and light intensity has different intercepts for the different timings, but the same slope
+```
+
+```{r}
+# 3. The relationship between the number of flowers per plant and light intensity has different intercepts and different slopes for the different timings
+```
+
+```{r}
+# 4
+m1 = lm(Flowers~Light+Timing, data=flowers, weights=wts); anova(m1)
+m2 = lm(Flowers~Light*Timing, data=flowers, weights=wts); anova(m2)
+```
+
+```{r}
+# 5
+m1.nw = lm(Flowers~Light+Timing, data=flowers); anova(m1.nw)
+m2.nw = lm(Flowers~Light*Timing, data=flowers); anova(m2.nw)
+```
+
+```{r}
+summary(m1); summary(m1.nw)
+```
+
+```{r}
+plot(Flowers ~ Light, data=flowers, pch=ifelse(Timing=="PFI", 1, 19))
+legend("topright", pch=c(1, 19), legend=c("PFI","Before PFI"))
+abline(coef(m1)[1], coef(m1)[2], lty=1)
+# abline(sum(coef(m1)[c(1, 3)]), coef(m1)[2], lty=2)
+```
