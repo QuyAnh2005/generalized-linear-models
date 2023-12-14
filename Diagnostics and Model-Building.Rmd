@@ -1,0 +1,162 @@
+```{r}
+# Set seed for reproducibility
+set.seed(123)
+
+# Function to generate Q-Q plots
+generate_qq_plot <- function(n) {
+  # Generate random data from standard normal distribution
+  data <- rnorm(n)
+  
+  # Create Q-Q plot
+  qqnorm(data)
+  qqline(data)
+  
+  # title(paste("Q-Q Plot (n =", n, ")"))
+}
+
+# Generate Q-Q plots for different sample sizes
+sample_sizes <- c(100, 50, 20, 10)
+
+for (size in sample_sizes) {
+  generate_qq_plot(size)
+}
+```
+
+```{r}
+## 6
+# Fit a simple linear regression model
+model <- lm(mpg ~ wt, data = mtcars)
+
+partial.resid = resid(model, type="partial")
+head(partial.resid)
+
+termplot(model, partial.resid = TRUE, terms = "wt", las = 1)
+```
+
+```{r}
+## 7
+library(GLMsData); data(nhospital)
+nhospital
+```
+
+```{r}
+nh.m1 <- lm( MainHours ~ Eligible + OpRooms, data=nhospital)
+nh.m2 <- lm( MainHours ~ Eligible + Cases, data=nhospital)
+nh.m3 <- lm( MainHours ~ OpRooms + Cases, data=nhospital)
+
+# Compare fitted values
+fitted_values_model1 <- fitted(nh.m1)
+fitted_values_model2 <- fitted(nh.m2)
+fitted_values_model3 <- fitted(nh.m3)
+
+# Check the similarity of the fitted values
+cor(fitted_values_model1, fitted_values_model2)
+cor(fitted_values_model1, fitted_values_model3)
+cor(fitted_values_model2, fitted_values_model3)
+```
+
+```{r}
+
+```
+
+```{r}
+data(lungcap)
+lungcap$Smoke = factor(lungcap$Smoke, levels=c(0, 1), labels=c("Non-smoker","Smoker"))
+lungcap
+```
+
+```{r}
+## 8.1 
+lc.m1 = lm(FEV ~ factor(Smoke), data=lungcap)
+coef(summary(lc.m1))
+```
+
+```{r}
+lc.m2 = lm(FEV ~ ., data=lungcap)
+coef(summary(lc.m2))
+```
+
+```{r}
+lc.m3 = lm(log(FEV) ~ ., data=lungcap)
+coef(summary(lc.m3))
+```
+
+# 3.9
+
+```{r}
+lc.m1 = lm(log(FEV) ~ Age + Ht + Gender + Smoke, data = lungcap)
+lc.m2 = lm(log(FEV) ~ Age + log(Ht) + Gender + Smoke, data = lungcap)
+
+par(mfrow=c(1,2))
+
+# Compare two residuals with Ht variable
+scatter.smooth(rstandard(lc.m1) ~ fitted(lc.m1), col="grey", las=1, ylab="Standardized residuals", xlab="Height (inches)")
+
+scatter.smooth(rstandard(lc.m2) ~ fitted(lc.m2), col="grey", las=1, ylab="Standardized residuals", xlab="log(Height) (inches)")
+```
+
+```{r}
+par(mfrow=c(1,2))
+
+scatter.smooth(rstandard(lc.m1) ~ lungcap$Ht, col="grey", las=1, ylab="Standardized residuals", xlab="Height (inches)")
+
+scatter.smooth(rstandard(lc.m2) ~ log(lungcap$Ht), col="grey", las=1, ylab="Standardized residuals", xlab="log(Height) (inches)")
+```
+
+```{r}
+par(mfrow=c(1, 2))
+
+# Q-Q plot for model 1
+qqnorm(rstandard(lc.m1), las=1, pch=19)
+qqline(rstandard(lc.m1))
+
+# Q-Q plot for model 2
+qqnorm(rstandard(lc.m2), las=1, pch=19)
+qqline(rstandard(lc.m2))
+```
+
+# 3.10
+
+```{r}
+data(cheese)
+m4 = lm(log(Taste) ~ log(H2S) + Lactic + Acetic, data=cheese)
+scatter.smooth( rstandard(m4) ~ fitted(m4) )
+qqnorm(rstandard(m4)); qqline(rstandard(m4))
+plot(cooks.distance(m4), type="h")
+```
+
+# 3.11
+
+```{r}
+data(fishfood)
+head(fishfood)
+```
+
+```{r}
+m1 <- lm( log(FoodCon) ~ log(MaxWt) + log(Temp) + log(AR) + Food, data=fishfood); anova(m1)
+```
+
+```{r}
+scatter.smooth(rstandard(m1) ~ fitted(m1))
+qqnorm(rstandard(m1))
+qqline(rstandard(m1))
+```
+
+```{r}
+coef(summary(m1))
+```
+
+```{r}
+m2 <- update(m1, . ~ log(MaxWt) * log(Temp) * Food * log(AR))
+m3 <- step(m2); anova(m1, m3) # Model m3 a bit better
+```
+
+```{r}
+scatter.smooth(rstandard(m3)~fitted(m3)); qqnorm(rstandard(m3))
+```
+
+# 3.12
+
+```{r}
+data(ruminant); ruminant
+```
